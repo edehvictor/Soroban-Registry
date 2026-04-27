@@ -9,6 +9,7 @@ import NetworkUsageBarChart from '@/components/analytics/NetworkUsageBarChart';
 import RecentAdditionsTimeline from '@/components/analytics/RecentAdditionsTimeline';
 import TopPublishersList from '@/components/analytics/TopPublishersList';
 import { AlertCircle, RefreshCw, BarChart3, Users, Clock, Flame, PieChart, Activity } from 'lucide-react';
+import { fetchDashboardAnalytics, fetchTrendingContracts } from '@/lib/api/analytics';
 
 interface CategoryDistributionItem {
   total_views: number;
@@ -52,21 +53,16 @@ export default function AnalyticsDashboard() {
   const fetchData = useCallback(async (isAutoRefresh = false) => {
     if (!isAutoRefresh) setLoading(true);
     else setRefreshing(true);
-    
+
     setError(false);
     try {
-      const [dashRes, trendRes] = await Promise.all([
-        fetch(process.env.NEXT_PUBLIC_API_URL ? `${process.env.NEXT_PUBLIC_API_URL}/api/analytics/dashboard` : '/api/analytics/dashboard'),
-        fetch(process.env.NEXT_PUBLIC_API_URL ? `${process.env.NEXT_PUBLIC_API_URL}/api/contracts/trending?limit=10` : '/api/contracts/trending?limit=10')
+      const [dashData, trendingData] = await Promise.all([
+        fetchDashboardAnalytics(),
+        fetchTrendingContracts(10)
       ]);
-      
-      if (!dashRes.ok || !trendRes.ok) throw new Error('Failed to fetch data');
-      
-      const dashJson = await dashRes.json();
-      const trendJson = await trendRes.json();
-      
-      setData(dashJson);
-      setTrending(trendJson.trending || []);
+
+      setData(dashData as AnalyticsData);
+      setTrending(trendingData);
     } catch (e) {
       console.error("Failed to load analytics", e);
       if (!isAutoRefresh) setError(true);
