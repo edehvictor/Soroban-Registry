@@ -42,13 +42,16 @@ export function useTranslation(lng: string = fallbackLng, ns = "common") {
     i18n.changeLanguage(lng);
   }, [lng]);
 
-  // Persist language choice to cookie (for next reload)
+  // Persist language choice to cookie (for next reload).
+  // NOTE: `cookies` is intentionally omitted from deps — including it causes
+  // an infinite loop because setCookie triggers a cookie state update which
+  // re-runs this effect, which calls setCookie again, ad infinitum.
   useEffect(() => {
     if (!lng) return; // guard against empty language values
     if (cookies[cookieName] === lng) return;
-
     setCookie(cookieName, lng, { path: "/" });
-  }, [lng, cookies, setCookie]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lng, setCookie]);
 
   return ret;
 }

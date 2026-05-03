@@ -28,6 +28,11 @@ export class WebSocketService {
   }
 
   connect(): Promise<void> {
+    // Guard: WebSocket is not available in SSR / Node.js environments
+    if (typeof window === "undefined" || typeof WebSocket === "undefined") {
+      return Promise.resolve();
+    }
+
     return new Promise((resolve, reject) => {
       try {
         this.ws = new WebSocket(`${this.url}/ws/contracts`);
@@ -53,6 +58,9 @@ export class WebSocketService {
         this.ws.onerror = (_event) => {
           const error = new Error("WebSocket connection failed");
           this.errorHandlers.forEach((handler) => handler(error));
+          // Warn instead of hard-rejecting so callers that don't await
+          // connect() don't generate uncaught promise rejections.
+          console.warn("[WebSocketService]", error.message);
           reject(error);
         };
 
@@ -138,4 +146,6 @@ export class WebSocketService {
   }
 }
 
-export const wsService = new WebSocketService();
+// Only instantiate on the client side to avoid SSR errors
+export const wsService =
+  typeof window !== "undefined" ? new WebSocketService() : (null as unknown as WebSocketService);
