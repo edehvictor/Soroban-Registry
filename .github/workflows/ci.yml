@@ -37,7 +37,8 @@ jobs:
   rust-check:
     name: Rust – fmt, clippy, test, build
     needs: [changes]
-    if: ${{ github.event_name != 'pull_request' || needs.changes.outputs.rust == 'true' }}
+    # Only run when Rust files actually changed (on both push and PR)
+    if: ${{ needs.changes.outputs.rust == 'true' }}
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -108,7 +109,7 @@ jobs:
   frontend:
     name: Frontend – lint, test, build
     needs: [changes]
-    if: ${{ github.event_name != 'pull_request' || needs.changes.outputs.frontend == 'true' }}
+    if: ${{ needs.changes.outputs.frontend == 'true' }}
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -186,7 +187,7 @@ jobs:
     name: Docker production build
     runs-on: ubuntu-latest
     needs: [changes, rust-check, frontend]
-    if: ${{ github.event_name != 'pull_request' || (needs.changes.outputs.rust == 'true' && needs.changes.outputs.frontend == 'true') }}
+    if: ${{ needs.changes.outputs.rust == 'true' && needs.changes.outputs.frontend == 'true' }}
     steps:
       - uses: actions/checkout@v4
       - name: Build production image
