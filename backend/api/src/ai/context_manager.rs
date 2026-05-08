@@ -1,7 +1,7 @@
 use crate::ai::models::{ChatMessage, ChatSession};
 use crate::ai::service::ContractContext;
-use sqlx::{postgres::PgPool, types::Uuid};
 use serde_json::Value;
+use sqlx::{postgres::PgPool, types::Uuid};
 
 /// Manages conversation context and chat history for AI sessions
 #[derive(Clone)]

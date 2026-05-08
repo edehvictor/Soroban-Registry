@@ -217,8 +217,9 @@ pub async fn submit_attestation(
         let decoded_sig = BASE64.decode(sig_str).map_err(|_| {
             ApiError::bad_request_with("InvalidSignature", "Failed to decode base64 signature")
         })?;
-        let signature = Signature::from_slice(&decoded_sig)
-            .map_err(|_| ApiError::bad_request_with("InvalidSignature", "Invalid signature format"))?;
+        let signature = Signature::from_slice(&decoded_sig).map_err(|_| {
+            ApiError::bad_request_with("InvalidSignature", "Invalid signature format")
+        })?;
 
         let public_key_result = StrKeyPublicKey::from_string(&validator_address);
         let public_key_bytes = match public_key_result {

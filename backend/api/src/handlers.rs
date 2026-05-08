@@ -19,17 +19,18 @@ use serde_json::{json, Value};
 use shared::models::SourceFormat;
 use shared::{
     pagination::Cursor, AdvancedSearchRequest, AnalyticsEventType, AuditActionType,
-    ChangePublisherRequest, Contract, ContractAuditLog, ContractDeploymentHistory, ContractExportAcceptedResponse,
-    ContractExportFormat, ContractExportJobStatus, ContractExportMetadata, ContractExportRequest,
-    ContractExportStatusResponse, ContractGetResponse, ContractInteractionResponse,
-    ContractMetadataExportEnvelope, ContractMetadataExportRecord, ContractSearchParams,
-    ContractSource, ContractVersion, CreateContractVersionRequest, CreateInteractionBatchRequest,
-    CreateInteractionRequest, DeploymentHistoryQueryParams, FavoriteSearch, FieldOperator,
-    GraphResponse, InteractionTimeSeriesPoint, InteractionTimeSeriesResponse,
-    InteractionsListResponse, InteractionsQueryParams, Network, NetworkConfig, NetworkEndpoints,
-    NetworkHealth, NetworkHealthResponse, NetworkInfo, NetworkListResponse, NetworkStatus,
-    PaginatedResponse, PublishRequest, Publisher, QueryCondition, QueryNode, QueryOperator,
-    SaveFavoriteSearchRequest, SearchSuggestion, SearchSuggestionsResponse, SemVer, TrendingParams,
+    ChangePublisherRequest, Contract, ContractAuditLog, ContractDeploymentHistory,
+    ContractExportAcceptedResponse, ContractExportFormat, ContractExportJobStatus,
+    ContractExportMetadata, ContractExportRequest, ContractExportStatusResponse,
+    ContractGetResponse, ContractInteractionResponse, ContractMetadataExportEnvelope,
+    ContractMetadataExportRecord, ContractSearchParams, ContractSource, ContractVersion,
+    CreateContractVersionRequest, CreateInteractionBatchRequest, CreateInteractionRequest,
+    DeploymentHistoryQueryParams, FavoriteSearch, FieldOperator, GraphResponse,
+    InteractionTimeSeriesPoint, InteractionTimeSeriesResponse, InteractionsListResponse,
+    InteractionsQueryParams, Network, NetworkConfig, NetworkEndpoints, NetworkHealth,
+    NetworkHealthResponse, NetworkInfo, NetworkListResponse, NetworkStatus, PaginatedResponse,
+    PublishRequest, Publisher, QueryCondition, QueryNode, QueryOperator, SaveFavoriteSearchRequest,
+    SearchSuggestion, SearchSuggestionsResponse, SemVer, TrendingParams,
     UpdateContractMetadataRequest, UpdateContractStatusRequest, VerifyRequest,
 };
 
@@ -3329,12 +3330,12 @@ pub async fn get_contract_changelog(
             let old_abi = resolve_abi(&state, &old_selector, false).await?;
             let new_abi = resolve_abi(&state, &new_selector, false).await?;
 
-            let old_spec = contract_abi::parser::parse_json_spec(&old_abi, &old_selector)
-                .map_err(|e| {
+            let old_spec =
+                contract_abi::parser::parse_json_spec(&old_abi, &old_selector).map_err(|e| {
                     ApiError::bad_request("InvalidABI", format!("Failed to parse old ABI: {}", e))
                 })?;
-            let new_spec = contract_abi::parser::parse_json_spec(&new_abi, &new_selector)
-                .map_err(|e| {
+            let new_spec =
+                contract_abi::parser::parse_json_spec(&new_abi, &new_selector).map_err(|e| {
                     ApiError::bad_request("InvalidABI", format!("Failed to parse new ABI: {}", e))
                 })?;
 
@@ -3515,19 +3516,18 @@ pub async fn create_contract_version(
         if let Some(old_version) = latest_version {
             let old_selector = format!("{}@{}", contract_id, old_version);
             let old_abi = resolve_abi(&state, &old_selector, false).await?;
-            let old_spec = contract_abi::parser::parse_json_spec(&old_abi, &contract_id)
-                .map_err(|e| {
+            let old_spec =
+                contract_abi::parser::parse_json_spec(&old_abi, &contract_id).map_err(|e| {
                     ApiError::bad_request("InvalidABI", format!("Failed to parse old ABI: {}", e))
                 })?;
 
-            let new_spec =
-                contract_abi::parser::parse_json_spec(&req.abi.to_string(), &contract_id)
-                    .map_err(|e| {
-                        ApiError::bad_request(
-                            "InvalidABI",
-                            format!("Failed to parse new ABI: {}", e),
-                        )
-                    })?;
+            let new_spec = contract_abi::parser::parse_json_spec(
+                &req.abi.to_string(),
+                &contract_id,
+            )
+            .map_err(|e| {
+                ApiError::bad_request("InvalidABI", format!("Failed to parse new ABI: {}", e))
+            })?;
 
             let changes = diff_abi(&old_spec, &new_spec);
             if has_breaking_changes(&changes) && new_version.major == old_version.major {
@@ -5695,13 +5695,7 @@ pub async fn get_contract_deployments(
                 .await
                 .map_err(|err| db_internal_error("get logical_id", err))?;
 
-        ensure_contract_exists(
-            &state,
-            uuid,
-            &id,
-            "get contract for list deployments",
-        )
-        .await?;
+        ensure_contract_exists(&state, uuid, &id, "get contract for list deployments").await?;
         if let Some(lid) = logical_id {
             sqlx::query_scalar("SELECT id FROM contracts WHERE logical_id = $1")
                 .bind(lid)
@@ -6340,8 +6334,8 @@ mod tests {
             None,
             event_broadcaster,
         )
-            .await
-            .unwrap();
+        .await
+        .unwrap();
 
         let (status, json) = health_check(State(state)).await;
 

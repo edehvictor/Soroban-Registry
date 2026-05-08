@@ -18,12 +18,11 @@ use crate::{
     state::AppState,
 };
 use shared::{
-    AuditActionType, CloneContractRequest, CloneContractResponse, Contract,
-    FederatedRegistry, FederatedRegistryListResponse,
-    FederatedRegistryResponse, FederatedRegistrySummary, FederationAttribution,
-    FederationDiscoveryResponse, FederationOptRequest, FederationProtocolConfig,
-    FederationSyncHistoryResponse, FederationSyncJob, FederationSyncResponse,
-    RegisterFederatedRegistryRequest, SyncFederatedRegistryRequest,
+    AuditActionType, CloneContractRequest, CloneContractResponse, Contract, FederatedRegistry,
+    FederatedRegistryListResponse, FederatedRegistryResponse, FederatedRegistrySummary,
+    FederationAttribution, FederationDiscoveryResponse, FederationOptRequest,
+    FederationProtocolConfig, FederationSyncHistoryResponse, FederationSyncJob,
+    FederationSyncResponse, RegisterFederatedRegistryRequest, SyncFederatedRegistryRequest,
 };
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -810,8 +809,7 @@ async fn perform_federation_sync(db: PgPool, job_id: Uuid, registry_id: Uuid, ba
         if !response.status().is_success() {
             return Err(format!("Failed to fetch contracts: {}", response.status()));
         }
-        let contracts: serde_json::Value =
-            response.json().await.map_err(|e| e.to_string())?;
+        let contracts: serde_json::Value = response.json().await.map_err(|e| e.to_string())?;
         Ok(contracts)
     }
     .await;

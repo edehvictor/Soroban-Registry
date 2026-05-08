@@ -163,7 +163,11 @@ async fn fetch_wasm_bytes(
             // Fallback: if the source_url references an uploaded WASM file, try that.
             if let Some(url) = source_url {
                 if url.ends_with(".wasm") {
-                    match state.source_storage.retrieve_source(&storage_backend, &url).await {
+                    match state
+                        .source_storage
+                        .retrieve_source(&storage_backend, &url)
+                        .await
+                    {
                         Ok(bytes) => return Ok(bytes),
                         Err(_) => {}
                     }

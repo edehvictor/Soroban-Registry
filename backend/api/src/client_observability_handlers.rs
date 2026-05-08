@@ -20,8 +20,14 @@ pub async fn report_client_breaker(
     Json(payload): Json<ClientBreakerReport>,
 ) -> impl IntoResponse {
     let endpoint_label = payload.endpoint.as_str();
-    let value = if payload.state.to_lowercase() == "open" { 1 } else { 0 };
-    metrics::CLIENT_BREAKER_OPEN.with_label_values(&[endpoint_label]).set(value);
+    let value = if payload.state.to_lowercase() == "open" {
+        1
+    } else {
+        0
+    };
+    metrics::CLIENT_BREAKER_OPEN
+        .with_label_values(&[endpoint_label])
+        .set(value);
 
     (StatusCode::OK, Json(serde_json::json!({"ok": true})))
 }

@@ -1,8 +1,11 @@
+use crate::error::ApiError;
 use crate::state::AppState;
-use axum::{extract::{Query, State}, Json};
+use axum::{
+    extract::{Query, State},
+    Json,
+};
 use serde::{Deserialize, Serialize};
 use shared::models::Network;
-use crate::error::ApiError;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct RegistryStats {

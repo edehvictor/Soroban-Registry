@@ -3,16 +3,14 @@ use std::collections::{BTreeSet, HashMap, HashSet};
 use chrono::Utc;
 use serde_json::Value;
 use shared::{
-    ContractInteroperabilityResponse, GraphEdge, GraphNode, GraphResponse, Tag,
+    ContractInteroperabilityResponse, GraphEdge, GraphNode, GraphResponse,
     InteroperabilityCapability, InteroperabilityCapabilityKind, InteroperabilityProtocolMatch,
-    InteroperabilitySuggestion, InteroperabilitySummary, Network, ProtocolComplianceStatus,
+    InteroperabilitySuggestion, InteroperabilitySummary, Network, ProtocolComplianceStatus, Tag,
 };
 use sqlx::{FromRow, PgPool};
 use uuid::Uuid;
 
-use crate::{
-    error::{ApiError, ApiResult},
-};
+use crate::error::{ApiError, ApiResult};
 
 use contract_abi::parser::parse_json_spec;
 
@@ -116,7 +114,8 @@ pub async fn analyze_contract_interoperability(
     let target_is_bridge = has_capability(&capabilities, InteroperabilityCapabilityKind::Bridge);
     let target_is_adapter = has_capability(&capabilities, InteroperabilityCapabilityKind::Adapter);
 
-    let candidate_rows = load_candidate_contracts(pool, contract.id, contract.network.clone()).await?;
+    let candidate_rows =
+        load_candidate_contracts(pool, contract.id, contract.network.clone()).await?;
     let mut candidate_by_id = HashMap::new();
     let mut scored = Vec::new();
     for row in candidate_rows {
@@ -527,13 +526,17 @@ fn has_capability(
     capabilities: &[InteroperabilityCapability],
     target_kind: InteroperabilityCapabilityKind,
 ) -> bool {
-    capabilities.iter().any(|capability| {
-        match (&capability.kind, &target_kind) {
-            (InteroperabilityCapabilityKind::Bridge, InteroperabilityCapabilityKind::Bridge) => true,
-            (InteroperabilityCapabilityKind::Adapter, InteroperabilityCapabilityKind::Adapter) => true,
+    capabilities
+        .iter()
+        .any(|capability| match (&capability.kind, &target_kind) {
+            (InteroperabilityCapabilityKind::Bridge, InteroperabilityCapabilityKind::Bridge) => {
+                true
+            }
+            (InteroperabilityCapabilityKind::Adapter, InteroperabilityCapabilityKind::Adapter) => {
+                true
+            }
             _ => false,
-        }
-    })
+        })
 }
 
 fn count_capabilities(
@@ -542,12 +545,14 @@ fn count_capabilities(
 ) -> usize {
     capabilities
         .iter()
-        .filter(|capability| {
-            match (&capability.kind, &target_kind) {
-                (InteroperabilityCapabilityKind::Bridge, InteroperabilityCapabilityKind::Bridge) => true,
-                (InteroperabilityCapabilityKind::Adapter, InteroperabilityCapabilityKind::Adapter) => true,
-                _ => false,
+        .filter(|capability| match (&capability.kind, &target_kind) {
+            (InteroperabilityCapabilityKind::Bridge, InteroperabilityCapabilityKind::Bridge) => {
+                true
             }
+            (InteroperabilityCapabilityKind::Adapter, InteroperabilityCapabilityKind::Adapter) => {
+                true
+            }
+            _ => false,
         })
         .count()
 }

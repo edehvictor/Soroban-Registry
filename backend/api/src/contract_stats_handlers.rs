@@ -175,7 +175,9 @@ pub async fn get_contract_stats(
     let contract_name = sqlx::query_scalar::<_, String>("SELECT name FROM contracts WHERE id = $1")
         .fetch_optional(&state.db)
         .await?
-        .ok_or_else(|| ApiError::not_found("NOT_FOUND", format!("Contract {} not found", contract_id)))?;
+        .ok_or_else(|| {
+            ApiError::not_found("NOT_FOUND", format!("Contract {} not found", contract_id))
+        })?;
 
     // Query aggregated stats for the period
     let stats = sqlx::query_as::<_, ContractUsageStatsRow>(
@@ -261,7 +263,9 @@ pub async fn get_contract_stats_timeseries(
     let contract_name = sqlx::query_scalar::<_, String>("SELECT name FROM contracts WHERE id = $1")
         .fetch_optional(&state.db)
         .await?
-        .ok_or_else(|| ApiError::not_found("NOT_FOUND", format!("Contract {} not found", contract_id)))?;
+        .ok_or_else(|| {
+            ApiError::not_found("NOT_FOUND", format!("Contract {} not found", contract_id))
+        })?;
 
     let rows = sqlx::query_as::<_, TimeSeriesRow>(
         r#"

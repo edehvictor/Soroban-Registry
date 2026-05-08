@@ -60,7 +60,10 @@ pub async fn publish_abi(
     Json(req): Json<PublishAbiRequest>,
 ) -> ApiResult<Json<PublishAbiResponse>> {
     if req.version.trim().is_empty() {
-        return Err(ApiError::bad_request("EMPTY_VERSION", "version must not be empty"));
+        return Err(ApiError::bad_request(
+            "EMPTY_VERSION",
+            "version must not be empty",
+        ));
     }
 
     let contract_exists: bool =
@@ -74,8 +77,9 @@ pub async fn publish_abi(
         return Err(ApiError::not_found("contract", "Contract not found"));
     }
 
-    let abi_str = serde_json::to_string(&req.abi)
-        .map_err(|e| ApiError::bad_request("INVALID_ABI_JSON", format!("Invalid ABI JSON: {}", e)))?;
+    let abi_str = serde_json::to_string(&req.abi).map_err(|e| {
+        ApiError::bad_request("INVALID_ABI_JSON", format!("Invalid ABI JSON: {}", e))
+    })?;
 
     // Validate it parses as a Soroban ABI.
     parse_json_spec(&abi_str, &contract_id.to_string())
@@ -187,10 +191,16 @@ pub async fn check_compatibility(
 ) -> ApiResult<Json<CompatibilityReport>> {
     let (base, new_rec) = if req.base_version.is_some() || req.new_version.is_some() {
         let bv = req.base_version.ok_or_else(|| {
-            ApiError::bad_request("MISSING_PARAM", "base_version is required when new_version is specified")
+            ApiError::bad_request(
+                "MISSING_PARAM",
+                "base_version is required when new_version is specified",
+            )
         })?;
         let nv = req.new_version.ok_or_else(|| {
-            ApiError::bad_request("MISSING_PARAM", "new_version is required when base_version is specified")
+            ApiError::bad_request(
+                "MISSING_PARAM",
+                "new_version is required when base_version is specified",
+            )
         })?;
         let b = fetch_abi_record(&state, contract_id, &bv).await?;
         let n = fetch_abi_record(&state, contract_id, &nv).await?;
@@ -259,10 +269,12 @@ fn run_compatibility_check(
     let new_str = serde_json::to_string(&new_rec.abi)
         .map_err(|e| ApiError::internal(format!("Serialize error: {}", e)))?;
 
-    let base_spec = parse_json_spec(&base_str, &base.version)
-        .map_err(|e| ApiError::bad_request_with("INVALID_ABI", format!("Invalid base ABI: {}", e)))?;
-    let new_spec = parse_json_spec(&new_str, &new_rec.version)
-        .map_err(|e| ApiError::bad_request_with("INVALID_ABI", format!("Invalid new ABI: {}", e)))?;
+    let base_spec = parse_json_spec(&base_str, &base.version).map_err(|e| {
+        ApiError::bad_request_with("INVALID_ABI", format!("Invalid base ABI: {}", e))
+    })?;
+    let new_spec = parse_json_spec(&new_str, &new_rec.version).map_err(|e| {
+        ApiError::bad_request_with("INVALID_ABI", format!("Invalid new ABI: {}", e))
+    })?;
 
     let raw_changes = diff_abi(&base_spec, &new_spec);
 

@@ -72,16 +72,18 @@ impl AuditLogger {
     #[instrument(skip(self), fields(operation = %event.operation, resource_id = %event.resource_id))]
     pub async fn log(&self, event: AuditEvent) -> Result<i64, sqlx::Error> {
         // Fetch the most recent chain hash (or genesis value).
-        let prev_hash: String = sqlx::query_scalar(
-            "SELECT COALESCE(MAX(chain_hash), 'genesis') FROM audit_logs"
-        )
-        .fetch_one(&self.pool)
-        .await?;
+        let prev_hash: String =
+            sqlx::query_scalar("SELECT COALESCE(MAX(chain_hash), 'genesis') FROM audit_logs")
+                .fetch_one(&self.pool)
+                .await?;
 
         let now = chrono::Utc::now();
         let chain_input = format!(
             "{}{}{}{}",
-            prev_hash, event.operation, event.resource_id, now.to_rfc3339()
+            prev_hash,
+            event.operation,
+            event.resource_id,
+            now.to_rfc3339()
         );
         let chain_hash = hex::encode(Sha256::digest(chain_input.as_bytes()));
 

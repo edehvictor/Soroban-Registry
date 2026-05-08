@@ -578,7 +578,11 @@ impl From<ContractPerformanceSummaryResponse> for PerformanceSummaryType {
                 .into_iter()
                 .map(PerformanceMetricSnapshotType::from)
                 .collect(),
-            trends: s.trends.into_iter().map(PerformanceTrendPointType::from).collect(),
+            trends: s
+                .trends
+                .into_iter()
+                .map(PerformanceTrendPointType::from)
+                .collect(),
             regressions: s
                 .regressions
                 .into_iter()

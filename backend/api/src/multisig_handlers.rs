@@ -897,8 +897,9 @@ pub async fn list_publisher_keys(
     State(state): State<AppState>,
     Path(id): Path<String>,
 ) -> ApiResult<Json<Vec<PublisherMultisigKey>>> {
-    let publisher_id = Uuid::parse_str(&id)
-        .map_err(|_| ApiError::bad_request_with("InvalidPublisherId", "publisher id must be a UUID"))?;
+    let publisher_id = Uuid::parse_str(&id).map_err(|_| {
+        ApiError::bad_request_with("InvalidPublisherId", "publisher id must be a UUID")
+    })?;
 
     let exists: Option<Uuid> = sqlx::query_scalar("SELECT id FROM publishers WHERE id = $1")
         .bind(publisher_id)
@@ -940,8 +941,9 @@ pub async fn create_publisher_key(
     Path(id): Path<String>,
     Json(payload): Json<CreatePublisherKeyRequest>,
 ) -> ApiResult<Json<PublisherMultisigKey>> {
-    let publisher_id = Uuid::parse_str(&id)
-        .map_err(|_| ApiError::bad_request_with("InvalidPublisherId", "publisher id must be a UUID"))?;
+    let publisher_id = Uuid::parse_str(&id).map_err(|_| {
+        ApiError::bad_request_with("InvalidPublisherId", "publisher id must be a UUID")
+    })?;
 
     if payload.key_name.trim().is_empty() {
         return Err(ApiError::bad_request(

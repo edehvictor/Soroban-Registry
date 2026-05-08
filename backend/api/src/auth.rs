@@ -1,3 +1,6 @@
+use crate::{error::ApiError, state::AppState};
+use axum::extract::FromRequestParts;
+use axum::http::request::Parts;
 use axum::{
     extract::Request, http::header, http::StatusCode, middleware::Next, response::Response,
 };
@@ -8,9 +11,6 @@ use rand::{distributions::Alphanumeric, Rng};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fmt;
-use crate::{error::ApiError, state::AppState};
-use axum::extract::FromRequestParts;
-use axum::http::request::Parts;
 
 pub const MIN_JWT_SECRET_LEN: usize = 32;
 
@@ -207,10 +207,7 @@ impl AuthManager {
 impl FromRequestParts<AppState> for AuthClaims {
     type Rejection = ApiError;
 
-    async fn from_request_parts(
-        parts: &mut Parts,
-        _state: &AppState,
-    ) -> Result<Self, ApiError> {
+    async fn from_request_parts(parts: &mut Parts, _state: &AppState) -> Result<Self, ApiError> {
         let auth_header = parts
             .headers
             .get(header::AUTHORIZATION)

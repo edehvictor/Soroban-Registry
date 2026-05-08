@@ -183,7 +183,11 @@ impl ApiError {
     }
 
     pub fn service_unavailable(message: impl Into<String>) -> Self {
-        Self::new(StatusCode::SERVICE_UNAVAILABLE, "SERVICE_UNAVAILABLE", message)
+        Self::new(
+            StatusCode::SERVICE_UNAVAILABLE,
+            "SERVICE_UNAVAILABLE",
+            message,
+        )
     }
 
     pub fn service_unavailable_with(error: impl Into<String>, message: impl Into<String>) -> Self {
@@ -266,7 +270,7 @@ mod tests {
     #[tokio::test]
     async fn api_error_uses_standard_response_shape() {
         let response = ApiError::bad_request("INVALID_INPUT", "Invalid request payload")
-                .with_details(json!({ "field": "name" }))
+            .with_details(json!({ "field": "name" }))
             .into_response();
 
         assert_eq!(response.status(), StatusCode::BAD_REQUEST);

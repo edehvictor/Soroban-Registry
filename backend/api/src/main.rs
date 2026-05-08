@@ -23,10 +23,10 @@ use api::error::ApiError;
 use api::graphql;
 use api::handlers;
 use api::health_monitor;
-use api::migration_handlers;
 use api::metrics;
-use api::rate_limit::RateLimitState;
+use api::migration_handlers;
 use api::rate_limit;
+use api::rate_limit::RateLimitState;
 use api::request_tracing;
 use api::routes;
 use api::state::AppState;
@@ -166,10 +166,7 @@ async fn main() -> Result<()> {
     }
 
     // Initialize state monitor service (optional)
-    let _state_monitor = match StateMonitorService::new(
-        pool.clone(),
-        event_broadcaster.clone(),
-    ) {
+    let _state_monitor = match StateMonitorService::new(pool.clone(), event_broadcaster.clone()) {
         Ok(service) => {
             info!("State monitor service initialized");
             let monitor = Arc::new(service);

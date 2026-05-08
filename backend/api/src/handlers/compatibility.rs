@@ -248,10 +248,16 @@ async fn compute_upgrade_matrix(
                 };
 
                 let old_spec = parse_json_spec(&old_abi, &old_selector).map_err(|e| {
-                    ApiError::bad_request_with("InvalidABI", format!("Failed to parse old ABI: {e}"))
+                    ApiError::bad_request_with(
+                        "InvalidABI",
+                        format!("Failed to parse old ABI: {e}"),
+                    )
                 })?;
                 let new_spec = parse_json_spec(&new_abi, &new_selector).map_err(|e| {
-                    ApiError::bad_request_with("InvalidABI", format!("Failed to parse new ABI: {e}"))
+                    ApiError::bad_request_with(
+                        "InvalidABI",
+                        format!("Failed to parse new ABI: {e}"),
+                    )
                 })?;
 
                 let changes = diff_abi(&old_spec, &new_spec);

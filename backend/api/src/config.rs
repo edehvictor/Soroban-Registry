@@ -1,6 +1,6 @@
+use anyhow::{Context, Result};
 use serde::Deserialize;
 use std::env;
-use anyhow::{Context, Result};
 
 #[derive(Debug, Deserialize, Clone)]
 pub struct AppConfig {
@@ -34,7 +34,9 @@ fn validate_config(config: &AppConfig) -> Result<()> {
         anyhow::bail!("JWT_SECRET must be at least 32 characters long for security");
     }
 
-    if !config.database_url.starts_with("postgres://") && !config.database_url.starts_with("postgresql://") {
+    if !config.database_url.starts_with("postgres://")
+        && !config.database_url.starts_with("postgresql://")
+    {
         anyhow::bail!("DATABASE_URL must be a valid postgres connection string");
     }
 

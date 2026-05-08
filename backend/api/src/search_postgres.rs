@@ -10,7 +10,10 @@ use uuid::Uuid;
 
 use crate::error::ApiError;
 use crate::state::AppState;
-use axum::{extract::{Query, State}, Json};
+use axum::{
+    extract::{Query, State},
+    Json,
+};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SearchQuery {
@@ -276,24 +279,17 @@ pub async fn fulltext_search_handler(
 
     let search_req = SearchQuery {
         query: query.to_string(),
-        categories: params
-            .category
-            .as_ref()
-            .map(|c| vec![c.clone()]),
-        networks: params
-            .network
-            .as_ref()
-            .map(|n| {
-                n.split(',')
-                    .filter_map(|s| match s {
-                        "mainnet" => Some(Network::Mainnet),
-                        "testnet" => Some(Network::Testnet),
-                        "futurenet" => Some(Network::Futurenet),
-                        _ => None,
-                    })
-                    .collect::<Vec<Network>>()
-            })
-                    ,
+        categories: params.category.as_ref().map(|c| vec![c.clone()]),
+        networks: params.network.as_ref().map(|n| {
+            n.split(',')
+                .filter_map(|s| match s {
+                    "mainnet" => Some(Network::Mainnet),
+                    "testnet" => Some(Network::Testnet),
+                    "futurenet" => Some(Network::Futurenet),
+                    _ => None,
+                })
+                .collect::<Vec<Network>>()
+        }),
         verified_only: params.verified_only,
         tags: params
             .tags

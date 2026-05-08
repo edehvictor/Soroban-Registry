@@ -504,8 +504,7 @@ mod tests {
         let body = axum::body::to_bytes(response.into_body(), usize::MAX)
             .await
             .expect("body readable");
-        let value: serde_json::Value =
-            serde_json::from_slice(&body).expect("body is json");
+        let value: serde_json::Value = serde_json::from_slice(&body).expect("body is json");
 
         // Standard ApiError envelope (docs/ERROR_CODES.md)
         assert_eq!(value["code"], "VALIDATION_ERROR");

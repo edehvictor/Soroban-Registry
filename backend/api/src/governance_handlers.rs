@@ -12,7 +12,9 @@ use crate::{
     state::AppState,
 };
 
-#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, sqlx::Type, utoipa::ToSchema)]
+#[derive(
+    Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, sqlx::Type, utoipa::ToSchema,
+)]
 #[serde(rename_all = "snake_case")]
 #[sqlx(type_name = "governance_model", rename_all = "snake_case")]
 pub enum GovernanceModel {
@@ -22,7 +24,9 @@ pub enum GovernanceModel {
     Timelock,
 }
 
-#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, sqlx::Type, utoipa::ToSchema)]
+#[derive(
+    Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, sqlx::Type, utoipa::ToSchema,
+)]
 #[serde(rename_all = "snake_case")]
 #[sqlx(type_name = "governance_proposal_status", rename_all = "snake_case")]
 pub enum GovernanceProposalStatus {
@@ -34,7 +38,9 @@ pub enum GovernanceProposalStatus {
     Cancelled,
 }
 
-#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, sqlx::Type, utoipa::ToSchema)]
+#[derive(
+    Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, sqlx::Type, utoipa::ToSchema,
+)]
 #[serde(rename_all = "lowercase")]
 #[sqlx(type_name = "vote_choice", rename_all = "lowercase")]
 pub enum VoteChoice {

@@ -236,22 +236,30 @@ impl SubscriptionFilter {
     #[allow(dead_code)]
     fn matches(&self, event: &RealtimeEvent) -> bool {
         let (contract_id, network, visibility) = match event {
-            RealtimeEvent::ContractDeployed { contract_id, network, .. } => {
-                (contract_id.as_str(), Some(network.to_string()), None)
-            }
+            RealtimeEvent::ContractDeployed {
+                contract_id,
+                network,
+                ..
+            } => (contract_id.as_str(), Some(network.to_string()), None),
             RealtimeEvent::ContractUpdated { contract_id, .. } => {
                 (contract_id.as_str(), None, None)
             }
             RealtimeEvent::CicdPipeline { contract_id, .. } => (contract_id.as_str(), None, None),
-            RealtimeEvent::VersionCreated { contract_id, network, .. } => {
-                (contract_id.as_str(), Some(network.to_string()), None)
-            }
-            RealtimeEvent::MetadataUpdated { contract_id, visibility, .. } => {
-                (contract_id.as_str(), None, Some(visibility))
-            }
-            RealtimeEvent::StatusUpdated { contract_id, visibility, .. } => {
-                (contract_id.as_str(), None, Some(visibility))
-            }
+            RealtimeEvent::VersionCreated {
+                contract_id,
+                network,
+                ..
+            } => (contract_id.as_str(), Some(network.to_string()), None),
+            RealtimeEvent::MetadataUpdated {
+                contract_id,
+                visibility,
+                ..
+            } => (contract_id.as_str(), None, Some(visibility)),
+            RealtimeEvent::StatusUpdated {
+                contract_id,
+                visibility,
+                ..
+            } => (contract_id.as_str(), None, Some(visibility)),
         };
 
         if !self.contract_ids.is_empty() {
@@ -272,9 +280,7 @@ impl SubscriptionFilter {
             }
         }
 
-        if !self.include_private
-            && matches!(visibility, Some(ContractEventVisibility::Private))
-        {
+        if !self.include_private && matches!(visibility, Some(ContractEventVisibility::Private)) {
             return false;
         }
 

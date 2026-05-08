@@ -89,7 +89,10 @@ fn validate_contract_id(contract_id: &str) -> Result<(), String> {
 fn validate_wasm_hash(hash: &str) -> Result<(), String> {
     // WASM hashes are 64 character hex strings
     if hash.len() != 64 {
-        return Err(format!("WASM hash must be 64 characters, got {}", hash.len()));
+        return Err(format!(
+            "WASM hash must be 64 characters, got {}",
+            hash.len()
+        ));
     }
     if !hash.chars().all(|c| c.is_ascii_hexdigit()) {
         return Err("WASM hash must be hexadecimal".to_string());
@@ -146,10 +149,7 @@ fn validate_import_record(record: &ContractImportRecord, index: usize) -> Vec<St
                 ));
             }
             if let Err(e) = validate_wasm_hash(&version.wasm_hash) {
-                errors.push(format!(
-                    "[{}] versions[{}].wasm_hash: {}",
-                    index, vidx, e
-                ));
+                errors.push(format!("[{}] versions[{}].wasm_hash: {}", index, vidx, e));
             }
         }
     }
@@ -176,15 +176,14 @@ async fn import_single_contract(
     };
 
     // Check for existing contract
-    let existing: Option<(Uuid,)> = sqlx::query_as(
-        "SELECT id FROM contracts WHERE contract_id = $1 AND network = $2",
-    )
-    .bind(&record.contract_id)
-    .bind(&record.network)
-    .fetch_optional(db)
-    .await
-    .ok()
-    .flatten();
+    let existing: Option<(Uuid,)> =
+        sqlx::query_as("SELECT id FROM contracts WHERE contract_id = $1 AND network = $2")
+            .bind(&record.contract_id)
+            .bind(&record.network)
+            .fetch_optional(db)
+            .await
+            .ok()
+            .flatten();
 
     if let Some((existing_id,)) = existing {
         if skip_existing {
@@ -218,7 +217,10 @@ async fn import_single_contract(
     };
 
     // Insert contract
-    let visibility = record.visibility.clone().unwrap_or_else(|| "public".to_string());
+    let visibility = record
+        .visibility
+        .clone()
+        .unwrap_or_else(|| "public".to_string());
     let is_verified = record.is_verified.unwrap_or(false);
     let slug = shared::slugify(&record.name);
 
@@ -439,15 +441,15 @@ pub async fn import_contracts(
     if !validation_errors.is_empty() {
         return Err(ApiError::unprocessable(
             "VALIDATION_FAILED",
-            format!("Validation errors:\n{}", validation_errors.join("\n"))
+            format!("Validation errors:\n{}", validation_errors.join("\n")),
         ));
     }
 
     let total_count = req.contracts.len();
     let fail_safe = req.fail_safe;
     let skip_existing = req.skip_existing.unwrap_or(false);
-    let should_run_async = req.async_mode.unwrap_or(false)
-        || total_count > ASYNC_IMPORT_ROW_THRESHOLD;
+    let should_run_async =
+        req.async_mode.unwrap_or(false) || total_count > ASYNC_IMPORT_ROW_THRESHOLD;
 
     if should_run_async {
         let job_id = Uuid::new_v4();
@@ -522,10 +524,7 @@ pub async fn import_contracts(
 
     let imported_count = results.iter().filter(|r| r.success).count();
     let failed_count = total_count - imported_count;
-    let errors: Vec<String> = results
-        .iter()
-        .filter_map(|r| r.error.clone())
-        .collect();
+    let errors: Vec<String> = results.iter().filter_map(|r| r.error.clone()).collect();
 
     Ok((
         StatusCode::OK,
@@ -553,7 +552,9 @@ pub async fn import_contracts(
     ),
     tag = "Bulk Operations"
 )]
-pub async fn get_import_status(Path(job_id): Path<Uuid>) -> ApiResult<Json<ContractImportStatusResponse>> {
+pub async fn get_import_status(
+    Path(job_id): Path<Uuid>,
+) -> ApiResult<Json<ContractImportStatusResponse>> {
     let jobs = IMPORT_JOBS.read().await;
     let job = jobs.get(&job_id).ok_or_else(|| {
         ApiError::not_found("ImportNotFound", "No import job found for the supplied ID")
@@ -596,7 +597,7 @@ pub async fn get_export_contracts(
     // For the GET endpoint, we return a simple message directing users to use POST
     // for full export functionality, or implement streaming export here
     let format = params.format.unwrap_or(ContractExportFormat::Json);
-    
+
     // Return a 200 with instructions for using the POST endpoint
     let response_body = serde_json::json!({
         "message": "Use POST /contracts/export for full export functionality with filters",
@@ -621,7 +622,5 @@ pub async fn get_export_contracts(
 pub async fn cleanup_old_import_jobs() {
     let cutoff = chrono::Utc::now() - chrono::Duration::hours(24);
     let mut jobs = IMPORT_JOBS.write().await;
-    jobs.retain(|_, job| {
-        job.completed_at.map(|at| at > cutoff).unwrap_or(true)
-    });
+    jobs.retain(|_, job| job.completed_at.map(|at| at > cutoff).unwrap_or(true));
 }

@@ -22,8 +22,7 @@ use crate::{
     state::AppState,
 };
 use shared::{
-    CriticalContractScore, GraphAnalysisReport, IssueSeverity,
-    VulnerabilityPropagationResult,
+    CriticalContractScore, GraphAnalysisReport, IssueSeverity, VulnerabilityPropagationResult,
 };
 
 // ─── Query params ─────────────────────────────────────────────────────────────

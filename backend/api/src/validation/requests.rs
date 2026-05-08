@@ -561,7 +561,9 @@ impl Validatable for BulkStatusUpdateRequest {
             });
 
             if let Some(ref msg) = item.error_message {
-                builder.check(&format!("items[{index}].error_message"), || validate_no_xss(msg));
+                builder.check(&format!("items[{index}].error_message"), || {
+                    validate_no_xss(msg)
+                });
             }
         }
 
@@ -710,7 +712,9 @@ impl Validatable for ContractImportRequest {
                 }
                 validate_length(&contract.name, MIN_NAME_LENGTH, MAX_NAME_LENGTH)
             });
-            builder.check(&format!("{}.name", prefix), || validate_no_xss(&contract.name));
+            builder.check(&format!("{}.name", prefix), || {
+                validate_no_xss(&contract.name)
+            });
 
             builder.check(&format!("{}.publisher_address", prefix), || {
                 validate_stellar_address(&contract.publisher_address)

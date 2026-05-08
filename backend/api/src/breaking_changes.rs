@@ -9,7 +9,8 @@ use uuid::Uuid;
 use crate::error::{ApiError, ApiResult};
 use crate::state::AppState;
 use contract_abi::{
-    self, parser::parse_json_spec, ContractABI, ContractFunction, EnumVariant, SorobanType, StructField,
+    self, parser::parse_json_spec, ContractABI, ContractFunction, EnumVariant, SorobanType,
+    StructField,
 };
 
 #[derive(Debug, Serialize, Clone, Copy, PartialEq, Eq, utoipa::ToSchema)]

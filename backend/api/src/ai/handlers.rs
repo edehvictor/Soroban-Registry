@@ -88,7 +88,13 @@ pub async fn ai_chat_handler(
         let ctx = context_manager
             .get_contract_context(contract_id)
             .await
-            .map_err(|e| ApiError::new(StatusCode::INTERNAL_SERVER_ERROR, "CONTEXT_ERROR", e.to_string()))?;
+            .map_err(|e| {
+                ApiError::new(
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    "CONTEXT_ERROR",
+                    e.to_string(),
+                )
+            })?;
         ctx
     } else {
         None
@@ -108,10 +114,13 @@ pub async fn ai_chat_handler(
     };
 
     let start = std::time::Instant::now();
-    let ai_response = ai_service
-        .chat(ai_request)
-        .await
-        .map_err(|e| ApiError::new(StatusCode::INTERNAL_SERVER_ERROR, "AI_API_ERROR", e.to_string()))?;
+    let ai_response = ai_service.chat(ai_request).await.map_err(|e| {
+        ApiError::new(
+            StatusCode::INTERNAL_SERVER_ERROR,
+            "AI_API_ERROR",
+            e.to_string(),
+        )
+    })?;
 
     let response_time = start.elapsed().as_millis() as u64;
 
@@ -197,7 +206,11 @@ async fn handle_ai_chat_ws(socket: axum::extract::ws::WebSocket, state: AppState
 
                         // Get contract context if needed
                         let contract_context = if let Some(contract_id) = payload.contract_id {
-                            context_manager.get_contract_context(contract_id).await.ok().flatten()
+                            context_manager
+                                .get_contract_context(contract_id)
+                                .await
+                                .ok()
+                                .flatten()
                         } else {
                             None
                         };
@@ -274,8 +287,9 @@ pub async fn analyze_contract_handler(
         )
     })?;
 
-    let contract_uuid = Uuid::parse_str(&contract_id)
-        .map_err(|_| ApiError::bad_request_with("INVALID_CONTRACT_ID", "Invalid contract ID format"))?;
+    let contract_uuid = Uuid::parse_str(&contract_id).map_err(|_| {
+        ApiError::bad_request_with("INVALID_CONTRACT_ID", "Invalid contract ID format")
+    })?;
 
     // Fetch contract code from source storage
     let contract_code = sqlx::query_scalar!(
@@ -292,14 +306,15 @@ pub async fn analyze_contract_handler(
         ApiError::not_found("CONTRACT_NOT_FOUND", "Contract or source code not found")
     })?;
 
-    let contract: shared::models::Contract = sqlx::query_as(
-        "SELECT * FROM contracts WHERE id = $1",
-    )
-    .bind(contract_uuid)
-    .fetch_optional(&state.db)
-    .await
-    .map_err(|e| ApiError::new(StatusCode::INTERNAL_SERVER_ERROR, "DB_ERROR", e.to_string()))?
-    .ok_or_else(|| ApiError::not_found("CONTRACT_NOT_FOUND", "Contract not found"))?;
+    let contract: shared::models::Contract =
+        sqlx::query_as("SELECT * FROM contracts WHERE id = $1")
+            .bind(contract_uuid)
+            .fetch_optional(&state.db)
+            .await
+            .map_err(|e| {
+                ApiError::new(StatusCode::INTERNAL_SERVER_ERROR, "DB_ERROR", e.to_string())
+            })?
+            .ok_or_else(|| ApiError::not_found("CONTRACT_NOT_FOUND", "Contract not found"))?;
 
     let ctx = ContractContext {
         contract_id: contract_uuid.to_string(),
@@ -360,8 +375,9 @@ pub async fn check_vulnerabilities_handler(
         )
     })?;
 
-    let contract_uuid = Uuid::parse_str(&contract_id)
-        .map_err(|_| ApiError::bad_request_with("INVALID_CONTRACT_ID", "Invalid contract ID format"))?;
+    let contract_uuid = Uuid::parse_str(&contract_id).map_err(|_| {
+        ApiError::bad_request_with("INVALID_CONTRACT_ID", "Invalid contract ID format")
+    })?;
 
     let contract_code = sqlx::query_scalar!(
         "SELECT source_code FROM verifications 
@@ -420,8 +436,9 @@ pub async fn explain_contract_handler(
         )
     })?;
 
-    let contract_uuid = Uuid::parse_str(&contract_id)
-        .map_err(|_| ApiError::bad_request_with("INVALID_CONTRACT_ID", "Invalid contract ID format"))?;
+    let contract_uuid = Uuid::parse_str(&contract_id).map_err(|_| {
+        ApiError::bad_request_with("INVALID_CONTRACT_ID", "Invalid contract ID format")
+    })?;
 
     let contract_code = sqlx::query_scalar!(
         "SELECT source_code FROM verifications 
@@ -480,8 +497,9 @@ pub async fn suggest_code_handler(
         )
     })?;
 
-    let contract_uuid = Uuid::parse_str(&contract_id)
-        .map_err(|_| ApiError::bad_request_with("INVALID_CONTRACT_ID", "Invalid contract ID format"))?;
+    let contract_uuid = Uuid::parse_str(&contract_id).map_err(|_| {
+        ApiError::bad_request_with("INVALID_CONTRACT_ID", "Invalid contract ID format")
+    })?;
 
     let contract_code = sqlx::query_scalar!(
         "SELECT source_code FROM verifications 
