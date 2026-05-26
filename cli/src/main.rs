@@ -201,6 +201,12 @@ pub enum Commands {
     Info {
         /// Contract ID or slug
         id: String,
+
+        #[arg(long)]
+        json: bool,
+
+        #[arg(long)]
+        raw: bool,
     },
 
     /// Search for contracts in the registry
@@ -1876,8 +1882,9 @@ pub async fn dispatch_command(
             )
             .await?;
         }
-        Commands::Info { id } => {
-            commands::contract_info(&cli.api_url, &id).await?;
+        Commands::Info { id, json, raw } => {
+            let use_json = json || raw;
+            contracts::info(&cli.api_url, &id, use_json).await?;
         }
         Commands::Compare {
             ids,
